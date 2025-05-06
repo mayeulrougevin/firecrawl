@@ -27,7 +27,7 @@ COPY --from=build /app/dist /app/dist
 COPY --from=prod-deps /app/node_modules /app/node_modules
 
 # Copier le script d'entrée
-COPY ./docker-entrypoint.sh /app/docker-entrypoint.sh
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 
 # Installer git (utile à runtime dans certains cas)
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
