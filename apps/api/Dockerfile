@@ -31,7 +31,7 @@ COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 
 # Installer git (si nécessaire pour des dépendances ou du clone runtime)
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-efe
+
 # Rendre le script exécutable et corriger les fins de lignes
 RUN chmod +x /app/docker-entrypoint.sh \
     && sed -i 's/\r$//' /app/docker-entrypoint.sh
