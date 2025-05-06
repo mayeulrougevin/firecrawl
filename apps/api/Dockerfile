@@ -42,7 +42,7 @@ COPY --from=rust-base /app/sharedLibs/html-transformer/target/release/libhtml_tr
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 8080
+EXPOSE 3002
 
 # Make sure the entrypoint script has the correct line endings
 RUN sed -i 's/\r$//' /app/docker-entrypoint.sh
