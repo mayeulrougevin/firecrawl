@@ -6,35 +6,38 @@ ENV PATH="$PNPM_HOME:$PATH"
 # Installer pnpm
 RUN npm install -g pnpm
 
-# Créer le répertoire de travail
 WORKDIR /app
 
-# Copier tout le projet (tu peux filtrer avec un .dockerignore si besoin)
+# Copier directement les fichiers du projet
 COPY . .
 
-# Étape de prod-deps
-FROM base AS prod-deps
-RUN pnpm install --prod --frozen-lockfile || (echo "=== ERREUR INSTALL ===" && cat pnpm-lock.yaml && exit 1)
+# Étape prod-deps
+FROM node:22-slim AS prod-deps
+RUN npm install -g pnpm
+WORKDIR /app
+COPY apps/api/package.json ./ 
+COPY apps/api/pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
 
-# Étape de build
-FROM base AS build
+# Étape build
+FROM node:22-slim AS build
+RUN npm install -g pnpm
+WORKDIR /app
+COPY apps/api/ ./
 RUN pnpm install --frozen-lockfile
 RUN pnpm run build
 
 # Étape finale
-FROM base
+FROM node:22-slim AS final
+RUN npm install -g pnpm
+WORKDIR /app
+
 COPY --from=build /app/dist /app/dist
 COPY --from=prod-deps /app/node_modules /app/node_modules
-
-# Copier le script d'entrée
 COPY apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
 
-# Installer git (utile à runtime dans certains cas)
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-# Rendre le script exécutable
 RUN chmod +x /app/docker-entrypoint.sh && sed -i 's/\r$//' /app/docker-entrypoint.sh
 
 EXPOSE 3002
-
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
