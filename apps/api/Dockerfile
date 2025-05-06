@@ -14,7 +14,7 @@ COPY . .
 
 # Étape de prod-deps
 FROM base AS prod-deps
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile || (echo "=== ERREUR INSTALL ===" && cat pnpm-lock.yaml && exit 1)
 
 # Étape de build
 FROM base AS build
